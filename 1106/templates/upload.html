@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>파일 업로드 및 미리보기</title>
+    <style>
+        body { font-family: Arial, sans-serif; display: flex; flex-direction: column; justify-content: flex-start; align-items: center; min-height: 100vh; background-color: #f4f7f6; padding-top: 50px; }
+        .container { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); width: 400px; text-align: center; } /* 중앙 정렬 추가 */
+        h2 { text-align: center; color: #333; margin-bottom: 5px; }
+        .greeting-message { font-size: 1.1em; color: #555; margin-bottom: 20px; }
+        .decorative-image { width: 150px; height: auto; margin-bottom: 20px; border-radius: 8px; } /* 이미지 스타일 */
+        form { margin-bottom: 20px; }
+        input[type="file"] { display: block; margin: 15px auto; padding: 10px; border: 1px solid #ccc; border-radius: 6px; }
+        button { width: 100%; padding: 10px; background-color: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; transition: background-color 0.3s; }
+        button:hover { background-color: #0056b3; }
+        
+        /* 이미지 표시 영역 스타일 */
+        #result-display { margin-top: 30px; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #fff; width: 400px; text-align: center; }
+        #result-display img { max-width: 100%; height: auto; border-radius: 4px; margin-top: 15px; }
+        .no-image { color: #888; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img src="{{ url_for('static', filename='cheems_salute.jpg') }}" alt="충성 이미지" class="decorative-image">
+        <h2>멍! 멍멍머머머멈멍멍멍!!!</h2>
+        <p class="greeting-message">(충성! 이미지를 업로드 해주세요!) 라는 뜻</p>
+        
+        <form method="POST" enctype="multipart/form-data" action="{{ url_for('index') }}">
+            <input type="file" name="file" accept="image/*" required>
+            <button type="submit">업로드</button>
+        </form>
+    </div>
+    
+    <div id="result-display">
+    <h3>업로드 결과</h3>
+    
+    {% if image_url %}
+        <p>✅ 파일 업로드 성공! **OCR 분석 완료.**</p>
+        <img src="{{ image_url }}" alt="Uploaded Image">
+        
+        <div style="margin-top: 20px; padding: 15px; border: 1px dashed #007bff; background-color: #e6f7ff; text-align: left;">
+            <h4>📝 추출된 텍스트 (OCR 결과)</h4>
+            <pre style="white-space: pre-wrap; word-wrap: break-word; font-size: 0.9em;">{{ ocr_result }}</pre>
+        </div>
+        
+    {% else %}
+        <p class="no-image">업로드된 이미지가 여기에 표시됩니다.</p>
+    {% endif %}
+</div>
+
+</body>
+</html>
