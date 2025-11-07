@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>시작 화면</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&display=swap');
+        
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-image: url('{{ background_image }}'); /* 로그인 배경화면 사용 */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            color: #fff;
+            text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.8);
+            cursor: pointer; 
+            position: relative;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5); 
+            z-index: 1;
+        }
+
+        .splash-text {
+            position: relative;
+            z-index: 2;
+            font-size: 2em;
+            font-weight: 700;
+            color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            animation: pulse 2s infinite ease-in-out; 
+            background: rgba(0, 0, 0, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.6; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.05); }
+            100% { opacity: 0.6; transform: scale(1); }
+        }
+
+        @keyframes fadeOut {
+            to { opacity: 0; }
+        }
+
+        @media (max-width: 480px) {
+            .splash-text {
+                font-size: 1.5em;
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="splash-text" id="splashText">
+        화면을 터치해주세요!
+    </div>
+
+    <script>
+        const body = document.body;
+        const splashText = document.getElementById('splashText');
+        // 'home' 라우트로 리다이렉트하여 로그인 상태를 확인합니다.
+        const loginUrl = '{{ login_url }}'; 
+
+        function handleTouch() {
+            body.style.animation = 'fadeOut 0.5s ease-out forwards';
+            splashText.style.animation = 'fadeOut 0.5s ease-out forwards';
+
+            setTimeout(() => {
+                window.location.href = loginUrl;
+            }, 500);
+
+            body.removeEventListener('click', handleTouch);
+            body.removeEventListener('touchstart', handleTouch);
+        }
+
+        body.addEventListener('click', handleTouch);
+        body.addEventListener('touchstart', handleTouch);
+    </script>
+</body>
+</html>

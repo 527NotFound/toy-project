@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OCR 서비스 - {{ username }}</title>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&display=swap');
+
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-image: url('{{ background_image }}'); /* 서비스 배경화면 사용 */
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed; 
+            color: #333;
+            text-shadow: 0.5px 0.5px 1px rgba(255, 255, 255, 0.3);
+            animation: fadeInBackground 1s ease-out;
+            position: relative;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.6); 
+            z-index: 0;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            background: rgba(255, 255, 255, 0.85); 
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+            max-width: 800px;
+            width: 100%;
+            margin-bottom: 20px;
+            text-align: center;
+            animation: slideUp 0.8s ease-out;
+        }
+
+        h1, h2 {
+            color: #007bff;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        p {
+            color: #555;
+            font-size: 1.05em;
+            line-height: 1.6;
+        }
+
+        .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .header-section h1 {
+            margin: 0;
+            font-size: 2.5em;
+        }
+
+        .logout-link {
+            padding: 8px 15px;
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 0.9em;
+            transition: background-color 0.3s ease;
+        }
+
+        .logout-link:hover {
+            background-color: #c82333;
+        }
+
+        input[type="file"] {
+            display: block;
+            width: 100%;
+            max-width: 400px; 
+            margin: 20px auto;
+            padding: 10px;
+            border: 2px dashed #007bff;
+            border-radius: 10px;
+            background-color: #e9f7ff;
+            color: #007bff;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        input[type="file"]::-webkit-file-upload-button {
+            visibility: hidden;
+            width: 0;
+        }
+        input[type="file"]::before {
+            content: '📸 이미지 선택 또는 촬영';
+            display: inline-block;
+            background: linear-gradient(top, #f9f9f9, #e3e3e3);
+            border: 1px solid #999;
+            border-radius: 3px;
+            padding: 8px 15px;
+            outline: none;
+            white-space: nowrap;
+            -webkit-user-select: none;
+            cursor: pointer;
+            text-shadow: 1px 1px #fff;
+            font-weight: 700;
+            color: #333;
+            margin-right: 10px;
+        }
+        input[type="file"]:hover::before {
+            border-color: black;
+        }
+        input[type="file"]:active::before {
+            background: -webkit-linear-gradient(top, #e3e3e3, #f9f9f9);
+        }
+
+        #ocrCanvas {
+            border: 2px solid #007bff;
+            display: block;
+            margin: 20px auto;
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        #fullTextOutput {
+            border: 1px solid #ccc;
+            padding: 15px;
+            min-height: 80px;
+            max-height: 200px;
+            overflow-y: auto;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: left;
+            white-space: pre-wrap; 
+            word-break: break-word; 
+            color: #333;
+            font-size: 0.95em;
+        }
+
+        .loading-spinner {
+            border: 4px solid rgba(0, 123, 255, 0.2);
+            border-top: 4px solid #007bff;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 15px auto;
+            display: none; 
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeInBackground {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            .header-section {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .header-section h1 {
+                font-size: 2em;
+                margin-bottom: 15px;
+            }
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+        }
+        @media (max-width: 480px) {
+            h1 { font-size: 1.8em; }
+            h2 { font-size: 1.4em; }
+            p { font-size: 0.9em; }
+            .logout-link { font-size: 0.8em; padding: 6px 12px; }
+            input[type="file"] { max-width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header-section">
+            <h1>📝 OCR 시각화 서비스</h1>
+            <a href="{{ url_for('logout') }}" class="logout-link">로그아웃 ({{ username }})</a>
+        </div>
+        
+        <p>환영합니다, <strong>{{ username }}</strong>님! 이미지를 업로드하거나 카메라로 촬영하여 텍스트를 인식해 보세요.</p>
+
+        <h2>이미지 제출 및 카메라 📸</h2>
+        <input type="file" id="imageUploader" accept="image/*" capture="camera" />
+        
+        <div class="loading-spinner" id="loadingSpinner"></div>
+
+        <h2>OCR 시각화 결과</h2>
+        <canvas id="ocrCanvas"></canvas>
+        <p>인식된 전체 텍스트:</p>
+        <div id="fullTextOutput"></div>
+    </div>
+
+<script>
+  const uploader = document.getElementById('imageUploader');
+  const canvas = document.getElementById('ocrCanvas');
+  const ctx = canvas.getContext('2d');
+  const fullTextOutput = document.getElementById('fullTextOutput');
+  const loadingSpinner = document.getElementById('loadingSpinner');
+
+  uploader.addEventListener('change', async event => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    fullTextOutput.textContent = "OCR 인식 중...";
+    loadingSpinner.style.display = 'block'; 
+
+    const img = new Image();
+    img.onload = async () => {
+      // 캔버스 크기 설정 (이미지 원본 비율 유지)
+      const maxWidth = canvas.parentElement.clientWidth - 40; 
+      let width = img.width;
+      let height = img.height;
+
+      if (width > maxWidth) {
+          height = height * (maxWidth / width);
+          width = maxWidth;
+      }
+      
+      canvas.width = width;
+      canvas.height = height;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0, width, height); 
+
+      try {
+        const { data } = await Tesseract.recognize(img, 'eng+kor', {
+          logger: m => {
+            console.log(m);
+            if (m.status === 'recognizing') {
+                fullTextOutput.textContent = `OCR 인식 중: ${Math.round(m.progress * 100)}%`;
+            }
+          }
+        });
+
+        const fullText = data.text.trim();
+        fullTextOutput.textContent = fullText || "인식된 텍스트가 없습니다.";
+
+        // 단어 단위 시각화
+        data.words.forEach(word => {
+          const bbox = word.bbox;
+          const conf = word.confidence;
+          
+          let color = 'rgba(255, 0, 0, 0.5)'; 
+          let textColor = 'red';
+
+          if (conf > 85) {
+            color = 'rgba(0, 128, 0, 0.5)'; 
+            textColor = 'green';
+          } else if (conf > 50) {
+            color = 'rgba(255, 165, 0, 0.5)'; 
+            textColor = 'orange';
+          }
+
+          // 캔버스 크기 조정에 따른 바운딩 박스 좌표 스케일링
+          const scaleX = width / img.width;
+          const scaleY = height / img.height;
+
+          const scaledX0 = bbox.x0 * scaleX;
+          const scaledY0 = bbox.y0 * scaleY;
+          const scaledWidth = (bbox.x1 - bbox.x0) * scaleX;
+          const scaledHeight = (bbox.y1 - bbox.y0) * scaleY;
+
+          ctx.strokeStyle = color;
+          ctx.lineWidth = 2;
+          ctx.strokeRect(scaledX0, scaledY0, scaledWidth, scaledHeight);
+
+          // 텍스트 위치도 스케일링
+          ctx.font = "12px Arial";
+          ctx.fillStyle = textColor;
+          const textY = scaledY0 > 15 ? scaledY0 - 2 : scaledY0 + scaledHeight + 12;
+          ctx.fillText(word.text, scaledX0, textY);
+        });
+        
+        alert("OCR 시각화가 완료되었습니다. Canvas를 확인해 주세요.");
+
+      } catch (err) {
+        console.error("OCR 에러:", err);
+        fullTextOutput.textContent = "OCR 중 오류가 발생했습니다: " + err.message;
+        alert("OCR 중 오류가 발생했습니다. 콘솔을 확인해 주세요.");
+      } finally {
+        loadingSpinner.style.display = 'none'; 
+      }
+    };
+    img.src = URL.createObjectURL(file);
+  });
+</script>
+
+</body>
+</html>
