@@ -1,0 +1,36 @@
+<div style="max-width: 1000px; margin: 40px auto; padding: 20px;">
+  
+  <h1 style="color: #007bff; text-align: center;">번역 결과 확인</h1>
+  <p style="text-align: center; color: #666;">OCR 및 DeepL 번역 결과를 확인하세요.</p>
+
+  <hr style="margin: 30px 0;">
+
+  <div style="display: flex; gap: 30px;">
+    <div style="flex: 1; border-right: 1px solid #ddd; padding-right: 30px;">
+      <h2 style="color: #333;">1. 원본 메뉴판 이미지</h2>
+      <% if @menu_entry.image.attached? %>
+        <%= image_tag @menu_entry.image, style: "max-width: 100%; height: auto; border: 1px solid #ccc; border-radius: 4px;" %>
+      <% else %>
+        <p>업로드된 이미지가 없습니다.</p>
+      <% end %>
+    </div>
+
+    <div style="flex: 1;">
+      <h2 style="color: #333;">2. 추출 및 번역 결과</h2>
+      
+      <h3 style="color: #e00; margin-top: 20px;">OCR 원문 (한국어)</h3>
+      <div style="min-height: 100px; padding: 15px; border: 1px solid #e00; border-radius: 4px; background-color: #fffaf0; font-size: 1em; white-space: pre-wrap;">
+        <%= @menu_entry.original_text %>
+      </div>
+
+      <h3 style="color: #007bff; margin-top: 20px;">DeepL 번역 결과 (영어)</h3>
+      <div style="min-height: 100px; padding: 15px; border: 1px solid #007bff; border-radius: 4px; background-color: #f0f8ff; font-size: 1.1em; font-weight: bold; white-space: pre-wrap;">
+        <%= @menu_entry.translated_text %>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align: center; margin-top: 40px;">
+    <%= link_to '다른 메뉴 번역하기', root_path, style: "padding: 12px 25px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; font-size: 1.1em;" %>
+  </div>
+</div>
