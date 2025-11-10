@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>인증 결과</title>
+</head>
+<body>
+    <h1>인증 결과</h1>
+    <p style="font-size: 1.5em; font-weight: bold;">{{ message }}</p>
+
+    <h2>확인 정보 (디버깅)</h2>
+    <ul>
+        <li>선택된 타일: {{ user_selections }}</li>
+        <li>정답 타일: {{ correct_tiles }}</li>
+    </ul>
+
+    <p><a href="{{ url_for('index') }}">새로운 도전 과제 시작</a></p>
+</body>
+</html>
