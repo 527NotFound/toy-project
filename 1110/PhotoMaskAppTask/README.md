@@ -63,3 +63,7 @@
 ## ✅ 개발 결과
 
 모든 과제와 복잡한 서버/환경 연동 및 코드 오류(DB, Nginx/Puma, rbenv, CSRF, Asset Pipeline, UI 테마)가 성공적으로 해결되었습니다. 애플리케이션은 **`https://badboy.kakaolab.cloud`** 에서 안정적으로 작동하며, **다크 모드 UI**가 적용된 상태에서 파일을 업로드하면 **얼굴 영역이 검은색으로 마스킹된 이미지**를 확인할 수 있습니다.
+
+<img width="1440" height="900" alt="스크린샷 2025-11-11 오전 12 34 44" src="https://github.com/user-attachments/assets/724c3ccb-f533-41c0-9ff2-03c66ea0b710" />
+
+<img width="1440" height="900" alt="스크린샷 2025-11-11 오전 12 34 53" src="https://github.com/user-attachments/assets/aec43ea2-f3a7-4481-9c90-0a92a58fb43b" />
