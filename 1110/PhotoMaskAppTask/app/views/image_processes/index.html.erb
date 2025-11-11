@@ -1,0 +1,56 @@
+<h2>파일 업로드 및 처리 목록</h2>
+
+<div class="card" id="upload-section">
+  <h3>1. 파일 업로드</h3>
+  <%= render 'form' %> 
+</div>
+
+<div class="card" id="list-section">
+  <h3>2. 처리 목록</h3>
+  <% if @image_results.any? %>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>원본 파일</th>
+          <th>상태</th>
+          <th>업로드 시각</th>
+          <th>결과 확인</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @image_results.each do |result| %>
+          <tr>
+            <td>**<%= result.id %>**</td>
+            <td>
+              <% if result.original_image.attached? %>
+                <%= result.original_image.filename %>
+              <% else %>
+                <span style="opacity: 0.6;">(파일 없음)</span>
+              <% end %>
+            </td>
+            <td>
+              <% 
+                status_class = case 
+                               when result.success? then 'status-success'
+                               when result.failed? then 'status-failed'
+                               else 'status-pending'
+                               end
+                status_text = case
+                              when result.success? then '✅ 처리 성공'
+                              when result.failed? then '❌ 처리 실패'
+                              else '⏳ 처리 대기 중'
+                              end
+              %>
+              <span class="<%= status_class %>"><%= status_text %></span>
+            </td>
+            <td><%= result.created_at.strftime("%Y-%m-%d %H:%M") %></td>
+            <td><%= link_to '결과 보기', image_process_path(result), class: 'btn btn-secondary' %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <p>업로드된 이미지가 아직 없습니다. 지금 바로 파일을 올려보세요!</p>
+  <% end %>
+</div>

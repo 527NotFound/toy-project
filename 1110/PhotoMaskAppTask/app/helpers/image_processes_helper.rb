@@ -1,0 +1,2 @@
+module ImageProcessesHelper
+end

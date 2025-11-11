@@ -1,0 +1,18 @@
+current directory: /home/ubuntu/1110/task/PhotoMaskApp/vendor/bundle/ruby/3.3.0/gems/bindex-0.8.1/ext/skiptrace
+/home/ubuntu/.rbenv/versions/3.3.0/bin/ruby extconf.rb
+creating Makefile
+
+current directory: /home/ubuntu/1110/task/PhotoMaskApp/vendor/bundle/ruby/3.3.0/gems/bindex-0.8.1/ext/skiptrace
+make DESTDIR\= sitearchdir\=./.gem.20251110-40497-sfj47j sitelibdir\=./.gem.20251110-40497-sfj47j clean
+
+current directory: /home/ubuntu/1110/task/PhotoMaskApp/vendor/bundle/ruby/3.3.0/gems/bindex-0.8.1/ext/skiptrace
+make DESTDIR\= sitearchdir\=./.gem.20251110-40497-sfj47j sitelibdir\=./.gem.20251110-40497-sfj47j
+compiling cruby.c
+linking shared-object skiptrace/internal/cruby.so
+
+current directory: /home/ubuntu/1110/task/PhotoMaskApp/vendor/bundle/ruby/3.3.0/gems/bindex-0.8.1/ext/skiptrace
+make DESTDIR\= sitearchdir\=./.gem.20251110-40497-sfj47j sitelibdir\=./.gem.20251110-40497-sfj47j install
+/usr/bin/install -c -m 0755 cruby.so ./.gem.20251110-40497-sfj47j/skiptrace/internal
+
+current directory: /home/ubuntu/1110/task/PhotoMaskApp/vendor/bundle/ruby/3.3.0/gems/bindex-0.8.1/ext/skiptrace
+make DESTDIR\= sitearchdir\=./.gem.20251110-40497-sfj47j sitelibdir\=./.gem.20251110-40497-sfj47j clean

@@ -1,0 +1,22 @@
+<%= form_with(model: @image_result, url: image_processes_path, local: true, html: { multipart: true }) do |form| %>
+  
+  <% if @image_result.errors.any? %>
+    <div id="error_explanation">
+      **업로드 오류 발생:**
+      <ul>
+        <% @image_result.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= form.label :original_image, "증명사진 파일 선택" %>
+    <%= form.file_field :original_image %>
+  </div>
+
+  <div class="actions" style="margin-top: 20px; text-align: right;">
+    <%= form.submit "파일 업로드 (처리 대기)", class: "btn btn-primary" %>
+  </div>
+<% end %>

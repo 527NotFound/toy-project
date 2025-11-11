@@ -1,0 +1,180 @@
+// --- UI Color Palette (Dark/Purple Theme) ---
+$bg-color: #0E0B16;
+$card-bg: #1A142D;
+$text-color: #E0E0E0;
+$accent-purple: #8B5CF6; // 주 강조색
+$light-purple: #A78BFA;
+$dark-purple: #5A3F7F;
+$border-color: #332B4F;
+$shadow-color: rgba(139, 92, 246, 0.15);
+
+// --- Base Styles ---
+body {
+    font-family: 'Inter', sans-serif; // 폰트 변경 필요 시, link 태그 추가
+    background-color: $bg-color;
+    color: $text-color;
+    margin: 0;
+    padding: 40px;
+    line-height: 1.6;
+}
+
+// --- Container & Header ---
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1, h2, h3 {
+    color: $light-purple;
+    margin-top: 30px;
+    font-weight: 600;
+}
+
+h2 {
+    border-bottom: 2px solid $border-color;
+    padding-bottom: 10px;
+    margin-bottom: 25px;
+}
+
+// --- Button Styles (Primary) ---
+.btn {
+    display: inline-block;
+    padding: 12px 25px;
+    border-radius: 8px;
+    font-size: 1em;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.3s ease, transform 0.1s ease;
+    border: none;
+}
+
+.btn-primary {
+    background: linear-gradient(45deg, $accent-purple, $light-purple);
+    color: #fff;
+    box-shadow: 0 4px 15px $shadow-color;
+
+    &:hover {
+        background: linear-gradient(45deg, $light-purple, $accent-purple);
+        transform: translateY(-1px);
+    }
+}
+
+// --- Card/Section Styling ---
+.card {
+    background-color: $card-bg;
+    border-radius: 12px;
+    padding: 30px;
+    margin-bottom: 30px;
+    box-shadow: 0 5px 20px $shadow-color;
+    border: 1px solid $border-color;
+}
+
+// --- Form & Input ---
+.field {
+    margin-bottom: 15px;
+    label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: $text-color;
+    }
+    input[type="file"] {
+        background-color: $dark-purple;
+        color: $text-color;
+        padding: 10px;
+        border-radius: 8px;
+        border: 1px solid $border-color;
+        width: 100%;
+        box-sizing: border-box;
+    }
+}
+
+// --- Table Styles ---
+.data-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-top: 20px;
+
+    thead th {
+        background-color: $dark-purple;
+        color: $light-purple;
+        font-weight: 600;
+        padding: 15px 10px;
+        text-align: left;
+        border-bottom: 2px solid $accent-purple;
+    }
+
+    tbody tr {
+        background-color: rgba(26, 20, 45, 0.7); // $card-bg 투명도 적용
+        border-bottom: 1px solid $border-color;
+        transition: background-color 0.2s;
+
+        &:hover {
+            background-color: rgba(26, 20, 45, 1);
+        }
+    }
+
+    td {
+        padding: 15px 10px;
+        font-size: 0.95em;
+    }
+    
+    // Status text colors
+    .status-success { color: #4CAF50; font-weight: 600; } // Green
+    .status-failed { color: #F44336; font-weight: 600; } // Red
+    .status-pending { color: #FFC107; font-weight: 600; } // Yellow/Orange
+}
+
+// --- Error/Notice Messages ---
+#error_explanation {
+    background-color: rgba(244, 67, 54, 0.1); // Red background
+    border: 1px solid #F44336;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    color: #F44336;
+}
+
+// --- Show Page Specific Styles ---
+
+.result-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    span {
+        font-size: 1.5em;
+        font-weight: 700;
+        color: $accent-purple;
+    }
+}
+
+.image-preview-area {
+    background-color: $card-bg;
+    padding: 30px;
+    border-radius: 12px;
+    text-align: center;
+    border: 2px dashed $dark-purple;
+    margin-bottom: 20px;
+
+    img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 5px;
+        // 투명 배경 체크무늬 (바둑판)
+        background-image: repeating-linear-gradient(45deg, $border-color 25%, transparent 25%, transparent 75%, $border-color 75%, $border-color), repeating-linear-gradient(45deg, $border-color 25%, $card-bg 25%, $card-bg 75%, $border-color 75%, $border-color);
+        background-position: 0 0, 10px 10px; // 바둑판 간격
+        background-size: 20px 20px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+    }
+    
+    p {
+        color: $text-color;
+        opacity: 0.7;
+        font-size: 0.9em;
+        margin-top: 15px;
+    }
+}

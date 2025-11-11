@@ -1,0 +1,19 @@
+current directory: /home/ubuntu/1110/task/PhotoMaskApp/vendor/bundle/ruby/3.3.0/gems/erb-5.1.3/ext/erb/escape
+/home/ubuntu/.rbenv/versions/3.3.0/bin/ruby extconf.rb
+checking for rb_ext_ractor_safe() in ruby.h... yes
+creating Makefile
+
+current directory: /home/ubuntu/1110/task/PhotoMaskApp/vendor/bundle/ruby/3.3.0/gems/erb-5.1.3/ext/erb/escape
+make DESTDIR\= sitearchdir\=./.gem.20251110-40497-54eb5a sitelibdir\=./.gem.20251110-40497-54eb5a clean
+
+current directory: /home/ubuntu/1110/task/PhotoMaskApp/vendor/bundle/ruby/3.3.0/gems/erb-5.1.3/ext/erb/escape
+make DESTDIR\= sitearchdir\=./.gem.20251110-40497-54eb5a sitelibdir\=./.gem.20251110-40497-54eb5a
+compiling escape.c
+linking shared-object erb/escape.so
+
+current directory: /home/ubuntu/1110/task/PhotoMaskApp/vendor/bundle/ruby/3.3.0/gems/erb-5.1.3/ext/erb/escape
+make DESTDIR\= sitearchdir\=./.gem.20251110-40497-54eb5a sitelibdir\=./.gem.20251110-40497-54eb5a install
+/usr/bin/install -c -m 0755 escape.so ./.gem.20251110-40497-54eb5a/erb
+
+current directory: /home/ubuntu/1110/task/PhotoMaskApp/vendor/bundle/ruby/3.3.0/gems/erb-5.1.3/ext/erb/escape
+make DESTDIR\= sitearchdir\=./.gem.20251110-40497-54eb5a sitelibdir\=./.gem.20251110-40497-54eb5a clean

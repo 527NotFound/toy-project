@@ -1,0 +1,19 @@
+current directory: /home/ubuntu/1110/task/PhotoMaskApp/vendor/bundle/ruby/3.3.0/gems/debug-1.11.0/ext/debug
+/home/ubuntu/.rbenv/versions/3.3.0/bin/ruby extconf.rb
+creating Makefile
+
+current directory: /home/ubuntu/1110/task/PhotoMaskApp/vendor/bundle/ruby/3.3.0/gems/debug-1.11.0/ext/debug
+make DESTDIR\= sitearchdir\=./.gem.20251110-40497-i1gsa7 sitelibdir\=./.gem.20251110-40497-i1gsa7 clean
+
+current directory: /home/ubuntu/1110/task/PhotoMaskApp/vendor/bundle/ruby/3.3.0/gems/debug-1.11.0/ext/debug
+make DESTDIR\= sitearchdir\=./.gem.20251110-40497-i1gsa7 sitelibdir\=./.gem.20251110-40497-i1gsa7
+compiling debug.c
+compiling iseq_collector.c
+linking shared-object debug/debug.so
+
+current directory: /home/ubuntu/1110/task/PhotoMaskApp/vendor/bundle/ruby/3.3.0/gems/debug-1.11.0/ext/debug
+make DESTDIR\= sitearchdir\=./.gem.20251110-40497-i1gsa7 sitelibdir\=./.gem.20251110-40497-i1gsa7 install
+/usr/bin/install -c -m 0755 debug.so ./.gem.20251110-40497-i1gsa7/debug
+
+current directory: /home/ubuntu/1110/task/PhotoMaskApp/vendor/bundle/ruby/3.3.0/gems/debug-1.11.0/ext/debug
+make DESTDIR\= sitearchdir\=./.gem.20251110-40497-i1gsa7 sitelibdir\=./.gem.20251110-40497-i1gsa7 clean

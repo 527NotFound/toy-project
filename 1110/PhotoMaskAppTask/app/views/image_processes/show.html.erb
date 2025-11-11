@@ -1,0 +1,31 @@
+<div class="card">
+  <div class="result-header">
+    <h2>✅ 이미지 처리 결과</h2>
+    <span>처리 ID: #<%= @image_result.id %></span>
+  </div>
+  
+  <% if @image_result.success? %>
+    <p class="status-success" style="font-size: 1.2em;">상태: **✅ 처리 성공**</p>
+    
+    <h3 style="margin-top: 30px;">처리 결과 이미지 (배경 투명)</h3>
+    <div class="image-preview-area">
+      <img src="<%= @image_result.processed_image_path %>" alt="Processed Image">
+    </div>
+    
+    <div style="text-align: center; margin-top: 30px;">
+      <%= link_to "원본 파일 다운로드", rails_blob_path(@image_result.original_image, disposition: "attachment"), class: "btn btn-secondary" %>
+      </div>
+    
+  <% elsif @image_result.failed? %>
+    <p class="status-failed" style="font-size: 1.2em;">상태: ❌ **처리 실패**</p>
+    <p style="margin-top: 20px;">오류 내용: **<%= @image_result.description %>**</p>
+  
+  <% else %>
+    <p class="status-pending" style="font-size: 1.2em;">상태: ⏳ **처리 대기 중**</p>
+    <p style="margin-top: 20px;">처리가 완료될 때까지 잠시 기다려주세요.</p>
+  <% end %>
+  
+  <div style="text-align: center; margin-top: 40px;">
+    <%= link_to '다른 이미지 처리하기', new_image_process_path, class: "btn btn-primary" %>
+  </div>
+</div>
