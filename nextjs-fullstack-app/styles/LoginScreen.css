@@ -1,0 +1,125 @@
+/* nextjs-fullstack-app/styles/LoginScreen.css */
+
+/* 전체 화면 설정 및 배경 */
+.login-screen-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  /* 이미지의 어두운 배경과 유사하게 설정 */
+  background: linear-gradient(135deg, #2a2a2a 0%, #000000 100%); 
+  font-family: Arial, sans-serif;
+}
+
+/* 로그인 폼 컨테이너 */
+.login-form {
+  background-color: rgba(40, 40, 40, 0.8); /* 약간 투명한 어두운 배경 */
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5); /* 깊이감 있는 그림자 */
+  width: 100%;
+  max-width: 380px;
+}
+
+/* 입력 그룹 (아이콘 + 입력 필드) */
+.input-group {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  background-color: rgba(255, 255, 255, 0.1); /* 입력 필드 배경색 (밝게) */
+  border-radius: 8px;
+  padding: 10px 15px;
+}
+
+.input-icon {
+  color: #cccccc; /* 아이콘 색상 */
+  margin-right: 15px;
+}
+
+/* 입력 필드 자체 스타일 */
+.input-field {
+  flex-grow: 1;
+  border: none;
+  outline: none;
+  background: none;
+  color: #ffffff; /* 입력 텍스트 색상 */
+  padding: 5px 0;
+  font-size: 16px;
+}
+
+/* 플레이스홀더 스타일 */
+.input-field::placeholder {
+  color: #999999;
+}
+
+/* 로그인 버튼 */
+.sign-in-button {
+  width: 100%;
+  background: #a9a9a9; /* 이미지의 버튼 색상과 유사한 연한 회색 */
+  color: #333333; /* 버튼 텍스트 색상 */
+  border: none;
+  padding: 15px;
+  border-radius: 8px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background-color 0.3s ease;
+}
+
+.sign-in-button:hover:not(:disabled) {
+  background: #c0c0c0;
+}
+
+.sign-in-button:disabled {
+    background: #555;
+    cursor: not-allowed;
+    color: #999;
+}
+
+/* 옵션 컨테이너 (Remember me, Forgot Password) */
+.options-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+  font-size: 14px;
+}
+
+/* Remember me 체크박스 레이블 */
+.remember-me-checkbox {
+  color: #cccccc;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+/* Forgot Password 링크 */
+.forgot-password-link {
+  color: #cccccc;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.forgot-password-link:hover {
+  color: #ffffff;
+}
+
+/* 상태 메시지 */
+.status-message {
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 4px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.status-message.success {
+    background-color: #28a745;
+    color: white;
+}
+
+.status-message.error {
+    background-color: #dc3545;
+    color: white;
+}
