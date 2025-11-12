@@ -50,6 +50,9 @@
 * **호스트 NGINX 설정:** 포트 80 트래픽을 호스트 포트 **8080**으로 리버스 프록시.
 * **결과:** **`badboy.kakaolab.cloud/login` 접속 시 Next.js 로그인 폼 정상 렌더링.**
 
+<img width="1440" height="900" alt="image" src="https://github.com/user-attachments/assets/8304eb57-6706-4fd3-b143-bb0b93a908ea" />
+
+
 ---
 **최종 문제 분석 및 해결**
 
