@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>프롬프트 템플릿 실습</title>
+    
+    <!-- Tailwind CSS CDN (Development Use Only) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons for better visual design -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <!-- Markdown Renderer for structured output -->
+    <script src="https://cdn.jsdelivr.net/npm/markdown-it@14.0.0/dist/markdown-it.min.js"></script>
+
+    <script>
+        const md = window.markdownit(); 
+
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: { // 세련된 보라색 팔레트 (Primary Purple)
+                            50: '#f5f3ff', 100: '#ede9fe', 200: '#ddd6fe', 300: '#c4b5fd',
+                            400: '#a78bfa', 500: '#8b5cf6', 600: '#7c3aed', 700: '#6d28d9',
+                            800: '#5b21b6', 900: '#4c1d95', 950: '#2f0f5f'
+                        },
+                        dark: '#1f1e29', // 메인 배경색
+                        darker: '#13131a', // 사이드바 및 입력창 배경색
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: theme('colors.dark'); 
+            color: theme('colors.gray.200');
+            transition: all 0.3s ease;
+        }
+
+        /* Custom scrollbar */
+        .custom-scrollbar::-webkit-scrollbar { width: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background-color: theme('colors.primary.600'); border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: theme('colors.darker'); }
+
+        /* Chat window height calculation */
+        #chat-window {
+            height: calc(100vh - 180px); 
+            scroll-behavior: smooth;
+        }
+
+        /* Markdown Styling for Chat Bubble - AI 응답 텍스트 색상을 흰색으로 강제 설정 */
+        .markdown-body {
+            color: #ffffff; /* 순수한 흰색 Hex 코드로 설정 */
+            line-height: 1.6;
+            font-size: 1rem;
+        }
+        /* Markdown이 생성하는 내부 태그에도 흰색을 명시적으로 적용하여 상속 문제 방지 */
+        .markdown-body p, .markdown-body ul, .markdown-body ol, .markdown-body li {
+            color: #ffffff;
+        }
+
+        .markdown-body p { margin-bottom: 1em; }
+        .markdown-body h1, .markdown-body h2 { font-weight: bold; margin-top: 1em; margin-bottom: 0.5em; color: theme('colors.primary.300'); }
+        .markdown-body pre {
+            /* 코드 블록 배경색 */
+            background-color: theme('colors.dark'); 
+            border: 1px solid theme('colors.gray.700');
+            padding: 0.75em;
+            border-radius: 0.5em;
+            overflow-x: auto;
+            margin-bottom: 1em;
+            color: theme('colors.primary.100');
+        }
+        .markdown-body code {
+            /* 인라인 코드 블록 배경색 */
+            background-color: theme('colors.dark');
+            padding: 0.1em 0.3em;
+            border-radius: 0.3em;
+            font-family: monospace;
+            color: theme('colors.primary.300');
+        }
+        .markdown-body ul, .markdown-body ol { margin-left: 1.5em; padding-left: 0; margin-bottom: 1em; }
+        .markdown-body ul { list-style-type: disc; }
+        .markdown-body blockquote {
+            border-left: 4px solid theme('colors.primary.500');
+            padding-left: 1em;
+            margin: 1em 0;
+            color: theme('colors.gray.400');
+        }
+    </style>
+    
+    <script>
+        // Canvas Environment Variables
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        // System Prompt Templates (Defined in Korean as requested)
+        const PROMPT_TEMPLATES = {
+            "친절한 상담사": {
+                system: "너는 친절하고 이해심 많은 고객 상담사 역할을 수행해줘.\n고객의 문의에 친절하고 상세하게 답변하되, 항상 정중하고 부드러운 어조를 유지해줘.\n답변은 300자 이내로 간결하게 작성해줘.",
+                description: "친절하고 정중한 어조로 300자 이내 답변."
+            },
+            "엄격한 관리자": {
+                system: "너는 엄격하고 규칙에 철저한 관리자 역할이야.\n사용자의 요청이나 질문에 대해 명확하고 단호하게 응답하되, 불필요한 감정을 배제하고 업무 중심으로 대답해줘.\n답변은 200자 내외로 정확하게 작성해줘.",
+                description: "엄격하고 단호한 어조로 200자 내외 정확한 답변."
+            },
+            "마케팅 전문가": {
+                system: "너는 마케팅 전문가야.\n내 요청에 따라 특정 제품이나 서비스에 대해 매력적인 광고 문구와 효과적인 마케팅 전략을 제안해줘.\n출력은 마크다운 형식으로 제목과 소제목, 주요 내용을 포함하도록 만들어줘.",
+                description: "매력적인 광고 문구와 마케팅 전략을 마크다운으로 제안."
+            },
+            "기술 지원 엔지니어": {
+                system: "너는 기술 지원 엔지니어 역할을 맡았어.\n고객이 겪는 기술 문제를 분석하고, 단계별 해결책과 권장 사항을 자세하게 안내해줘.\n응답은 400자 이내로 사례 중심으로 구성해줘.",
+                description: "기술 문제 분석 및 단계별 해결책을 400자 이내로 안내."
+            },
+            "교육 강사": {
+                system: "너는 교육 강사야.\n어려운 개념도 쉽게 이해할 수 있도록 비유와 예시를 포함한 설명을 해줘.\n대화체로 친근하게 답변하며, 설명은 500자 이내로 작성해줘.",
+                description: "비유와 예시를 포함한 친근한 대화체 설명 (500자 이내)."
+            },
+            "기업 보안 규정 반영": {
+                system: "너는 기업 내부 보안 정책과 규정을 엄격히 준수하는 AI 어시스턴트야.\n모든 대화와 정보 처리 과정에서 개인정보 보호, 최소 권한 원칙, 외부 네트워크 차단, 민감 데이터 비식별화 등을 반드시 지켜야 해.\n사용자에게 전달하는 정보는 반드시 검증된 데이터에 한하며, 비인가 접근 방지를 위해 민감하거나 비밀정보는 절대 공유하지 마.\n악성 코드 생성, 해킹 관련 조언, 보안 우회 방법 등의 요청은 모두 거부하고 안전한 행동만 수행해.\n응답은 항상 명확하고 간결하게 하며, 보안 규정을 위반하는 내용이 포함되지 않도록 주의해야 해.",
+                description: "기업 보안 정책을 엄격히 준수하는 AI 어시스턴트 역할."
+            },
+            "서비스 안전 제약 반영": {
+                system: "너는 기업의 서비스 운영자로서 모든 응답에 대해 다음 보안 규정을 엄격히 준수해야 해:\n- 개인정보 및 민감 정보 절대 저장, 공유 금지\n- 외부 네트워크 접속 금지 및 외부 정보 사용 제한\n- 악성 코드 생성, 해킹 기법 안내 등 위험한 행위 절대 금지\n- 정책 위반 내용 발견 시 즉시 거부하고 사유 설명\n- 모든 답변은 검증된 정보 기반으로 명확하고 간결하게 작성\n- 사용자 요청이 보안 규정을 위반할 경우 정중하되 단호하게 거절\n위 지침에 따라 응답하며, 서비스 신뢰성과 안전을 최우선으로 해야 한다.",
+                description: "서비스 운영 관점에서 안전 제약을 최우선으로 준수."
+            }
+        };
+
+        let currentTemplateName = '친절한 상담사'; 
+        // 🚨 Ollama URL: Host Network Mode에서 직접 접근하도록 localhost로 변경
+        let ollamaUrlBase = 'http://localhost:11434'; 
+        // 🚨 모델 이름: llama3.2:1b로 고정
+        let currentModel = 'llama3.2:1b'; 
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadTemplates();
+            selectTemplate(currentTemplateName);
+            displayInitialMessage();
+            
+            // 초기값 설정 및 모델 목록 로드 시도
+            document.getElementById('model-input').value = currentModel;
+            document.getElementById('model-select').value = currentModel; 
+            fetchOllamaModels(); 
+            
+            const userPromptInput = document.getElementById('user-prompt');
+            const sidebar = document.getElementById('sidebar');
+            
+            document.getElementById('generate-btn').addEventListener('click', generateResponse);
+            
+            // Enter 키 전송 (Shift+Enter는 줄바꿈)
+            userPromptInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    generateResponse();
+                }
+            });
+            
+            // 사이드바 토글 버튼 이벤트
+            document.getElementById('toggle-sidebar').addEventListener('click', () => {
+                sidebar.classList.toggle('-translate-x-full');
+            });
+            document.getElementById('toggle-sidebar-mobile').addEventListener('click', () => {
+                sidebar.classList.toggle('-translate-x-full');
+            });
+
+            // 입력창 높이 자동 조절 이벤트
+            userPromptInput.addEventListener('input', autoResizeTextarea);
+            
+            // 모델 선택/입력 변경 이벤트 (선택지가 하나밖에 없지만 UI를 위해 남겨둠)
+            document.getElementById('model-select').addEventListener('change', (e) => {
+                currentModel = e.target.value; 
+                updateFooterDisplay();
+            });
+            document.getElementById('model-input').addEventListener('input', (e) => {
+                currentModel = e.target.value.trim();
+                updateFooterDisplay();
+            });
+        });
+
+        // 🚨 모델 목록을 가져오는 함수 단순화 (localhost만 시도)
+        async function fetchOllamaModels() {
+            const modelSelect = document.getElementById('model-select');
+            const modelInput = document.getElementById('model-input');
+            const statusDiv = document.getElementById('model-status');
+            
+            statusDiv.innerHTML = '<i class="fas fa-spinner fa-spin mr-2 text-primary-400"></i> 모델 목록 로딩 중...';
+
+            try {
+                // 단일, localhost 주소만 시도 (Host Network Mode 전용)
+                const response = await fetch(`${ollamaUrlBase}/api/tags`);
+                
+                if (!response.ok) {
+                    throw new Error(`Ollama 서버 연결 실패 (HTTP ${response.status})`);
+                }
+
+                const data = await response.json();
+                const models = data.models || [];
+                
+                if (models.length > 0) {
+                    modelSelect.innerHTML = '';
+                    models.forEach(model => {
+                        const fullName = model.name;
+                        const option = document.createElement('option');
+                        option.value = fullName;
+                        option.textContent = fullName;
+                        modelSelect.appendChild(option);
+                    });
+                    
+                    // currentModel(llama3.2:1b)을 찾아서 선택합니다.
+                    modelSelect.value = currentModel;
+
+                    modelSelect.style.display = 'block';
+                    modelInput.style.display = 'none';
+                    statusDiv.innerHTML = `<i class="fas fa-check-circle mr-2 text-green-500"></i> 모델 목록 로드 완료 (URL: ${ollamaUrlBase})`;
+                } else {
+                    // 설치된 모델이 없는 경우 (llama3.2:1b를 수동으로 입력하도록 유도)
+                    statusDiv.innerHTML = '<i class="fas fa-info-circle mr-2 text-yellow-500"></i> 설치된 모델 없음. 수동 입력: llama3.2:1b';
+                    modelSelect.style.display = 'none';
+                    modelInput.style.display = 'block';
+                    modelInput.value = currentModel;
+                }
+            } catch (error) {
+                // 🚨 연결 오류 발생 시 (Failed to fetch) 오류 정보를 UI에 표시
+                statusDiv.innerHTML = `<i class="fas fa-times-circle mr-2 text-red-500"></i> 연결 실패: 서버 실행 및 URL 확인 필요. (URL: ${ollamaUrlBase})`;
+                console.error("Failed to fetch Ollama models:", error);
+                
+                // 모델 목록 로드에 실패하더라도 수동 입력 창은 열어두고 기본 모델을 사용
+                modelSelect.style.display = 'none';
+                modelInput.style.display = 'block';
+                modelInput.value = currentModel;
+            }
+            updateFooterDisplay();
+        }
+
+        // 텍스트 영역 높이 자동 조절
+        function autoResizeTextarea() {
+            const textarea = document.getElementById('user-prompt');
+            textarea.style.height = 'auto'; // Reset height
+            // 텍스트가 5줄을 초과하지 않도록 최대 높이 제한
+            const maxHeight = 5 * parseFloat(getComputedStyle(textarea).lineHeight); 
+            textarea.style.height = Math.min(textarea.scrollHeight, maxHeight) + 'px'; // Set to scroll height
+        }
+
+        // 초기 메시지 표시
+        function displayInitialMessage() {
+            const chatWindow = document.getElementById('chat-window');
+            chatWindow.innerHTML = `
+                <div class="p-4 flex flex-col items-center justify-center h-full text-center text-gray-400">
+                    <i class="fas fa-robot text-7xl mb-6 text-primary-500"></i>
+                    <p class="max-w-md">좌측 사이드바에서 AI의 **역할(템플릿)**을 선택하고, 아래 입력창에 프롬프트를 입력하여 테스트를 시작하세요.</p>
+                    <p class="mt-4 text-sm text-gray-500">현재 선택된 역할: <span class="text-primary-400 font-semibold" id="initial-template-name">친절한 상담사</span></p>
+                </div>
+            `;
+            document.getElementById('initial-template-name').textContent = currentTemplateName;
+        }
+
+        // 템플릿 버튼을 생성하고 UI에 추가
+        function loadTemplates() {
+            const container = document.getElementById('template-buttons');
+            Object.keys(PROMPT_TEMPLATES).forEach(name => {
+                const template = PROMPT_TEMPLATES[name];
+                const button = document.createElement('button');
+                button.textContent = name;
+                // 기본 스타일: 투명 배경, 호버 시 보라색 하이라이트
+                button.className = 'template-btn w-full text-left py-2 px-4 rounded-lg transition duration-150 ease-in-out text-sm text-gray-200 bg-transparent hover:bg-primary-700/50';
+                button.title = template.description;
+                button.onclick = () => selectTemplate(name);
+                container.appendChild(button);
+            });
+        }
+
+        // 템플릿 선택 및 UI 업데이트
+        function selectTemplate(name) {
+            currentTemplateName = name;
+            const template = PROMPT_TEMPLATES[name];
+
+            // 사이드바 업데이트
+            document.getElementById('system-prompt-display').textContent = template.system;
+            document.getElementById('selected-template-name').textContent = name;
+            document.getElementById('selected-template-desc').textContent = template.description;
+            
+            // 초기 메시지 업데이트 (있다면)
+            const initialTemplateNameElement = document.getElementById('initial-template-name');
+            if (initialTemplateNameElement) {
+                initialTemplateNameElement.textContent = name;
+            }
+
+            // 버튼 활성화 스타일 업데이트
+            document.querySelectorAll('.template-btn').forEach(btn => {
+                if (btn.textContent === name) {
+                    // 활성화 스타일: 진한 보라색 배경
+                    btn.classList.add('bg-primary-600', 'text-white', 'font-semibold');
+                    btn.classList.remove('bg-transparent', 'text-gray-200', 'hover:bg-primary-700/50');
+                } else {
+                    // 비활성화 스타일
+                    btn.classList.remove('bg-primary-600', 'text-white', 'font-semibold');
+                    btn.classList.add('bg-transparent', 'text-gray-200', 'hover:bg-primary-700/50');
+                }
+            });
+            updateFooterDisplay();
+        }
+
+        // 대화창에 메시지 버블 추가
+        function addMessage(role, content) {
+            const chatWindow = document.getElementById('chat-window');
+            const isUser = role === 'user';
+            
+            // 초기 메시지 지우기
+            if (chatWindow.querySelector('.text-gray-400')) {
+                chatWindow.innerHTML = ''; 
+            }
+
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `flex w-full mb-6 ${isUser ? 'justify-end' : 'justify-start'}`;
+            messageDiv.innerHTML = `
+                <div class="${isUser ? 'bg-primary-700/70' : 'bg-darker'} max-w-3xl p-4 rounded-xl shadow-2xl ${isUser ? 'rounded-br-lg' : 'rounded-bl-lg'}">
+                    <div class="font-bold mb-2 ${isUser ? 'text-primary-200' : 'text-primary-400'} flex items-center">
+                        <i class="fas ${isUser ? 'fa-user' : 'fa-robot'} mr-2"></i>
+                        ${isUser ? '나 (User)' : 'Ollama (' + currentTemplateName + ')'}
+                    </div>
+                    <div id="message-${Date.now()}" class="markdown-body">
+                        ${isUser ? content.replace(/\n/g, '<br>') : content}
+                    </div>
+                </div>
+            `;
+            chatWindow.appendChild(messageDiv);
+            chatWindow.scrollTop = chatWindow.scrollHeight; // 스크롤 하단으로 이동
+            return messageDiv.querySelector('.markdown-body');
+        }
+
+        // Ollama API 호출 및 응답 스트리밍 처리
+        async function generateResponse() {
+            const userPromptInput = document.getElementById('user-prompt');
+            const userPrompt = userPromptInput.value.trim();
+            const systemPrompt = document.getElementById('system-prompt-display').textContent.trim();
+            const generateBtn = document.getElementById('generate-btn');
+            
+            if (!userPrompt) {
+                alert('사용자 프롬프트를 입력해 주세요.'); 
+                return;
+            }
+            if (!currentModel) {
+                 alert('모델 이름을 입력하거나 선택해 주세요 (예: llama3.2:1b).');
+                return;
+            }
+
+            // 1. 사용자 메시지 표시
+            addMessage('user', userPrompt);
+            userPromptInput.value = ''; // 입력창 초기화
+            autoResizeTextarea(); // 입력창 크기 재설정
+
+            // 2. Ollama 응답을 위한 빈 요소 추가 및 로딩 상태 설정
+            const ollamaMessageContainer = addMessage('ollama', '<i class="fas fa-ellipsis-h animate-pulse text-primary-400"></i>');
+            let fullResponseText = '';
+
+            // UI 상태 변경: 로딩 시작
+            generateBtn.disabled = true;
+            generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            generateBtn.classList.add('opacity-50');
+            
+            const payload = {
+                model: currentModel, // 전체 모델 이름을 사용
+                prompt: userPrompt,
+                system: systemPrompt,
+                stream: true
+            };
+
+            try {
+                // API 호출 시에는 ollamaUrlBase (localhost:11434)를 사용합니다.
+                const response = await fetch(`${ollamaUrlBase}/api/generate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    let errorMessage = errorText;
+                    try {
+                        errorMessage = JSON.parse(errorText).error || errorText;
+                    } catch (e) {
+                        // JSON 파싱 실패 시 원본 텍스트 사용
+                    }
+                    throw new Error(`HTTP Error: ${response.status}. Model: ${currentModel}. Message: ${errorMessage.substring(0, 100)}...`);
+                }
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                
+                ollamaMessageContainer.innerHTML = ''; // 로딩 아이콘 제거
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    const chunk = decoder.decode(value, { stream: true });
+                    const lines = chunk.split('\n').filter(line => line.trim() !== '');
+
+                    for (const line of lines) {
+                        try {
+                            const data = JSON.parse(line);
+                            if (data.response) {
+                                fullResponseText += data.response;
+                                // 스트리밍 중에는 텍스트를 바로 업데이트하고 마크다운을 렌더링
+                                ollamaMessageContainer.innerHTML = md.render(fullResponseText);
+                                document.getElementById('chat-window').scrollTop = document.getElementById('chat-window').scrollHeight;
+                            }
+                            if (data.done) {
+                                break;
+                            }
+                        } catch (e) {
+                            console.warn("JSON chunk error:", line);
+                        }
+                    }
+                }
+                
+                // 최종 응답을 다시 한번 렌더링하여 깔끔하게 마무리
+                ollamaMessageContainer.innerHTML = md.render(fullResponseText);
+
+            } catch (error) {
+                console.error('Ollama API 호출 중 오류 발생:', error);
+                // 오류 메시지를 사용자에게 표시
+                ollamaMessageContainer.innerHTML = `
+                    <div class="p-3 bg-red-900/50 text-red-300 rounded-lg text-sm">
+                        <p class="font-bold mb-1">Ollama API 호출 오류:</p>
+                        <p><strong>오류:</strong> ${error.message}</p>
+                        <p class="mt-2 text-xs">모델 이름(<strong>${currentModel}</strong>)이 정확한지, Ollama 서버가 실행 중인지 확인하세요. (사용 URL: ${ollamaUrlBase})</p>
+                    </div>
+                `;
+            } finally {
+                // UI 상태 변경: 로딩 종료
+                generateBtn.disabled = false;
+                generateBtn.innerHTML = '<i class="fas fa-paper-plane"></i>';
+                generateBtn.classList.remove('opacity-50');
+            }
+        }
+        
+        // footer에 현재 모델 및 역할 이름 표시
+        function updateFooterDisplay() {
+            document.getElementById('model-name-display').textContent = currentModel || 'llama3.2:1b';
+            document.getElementById('role-name-display').textContent = currentTemplateName;
+        }
+
+    </script>
+</head>
+<body class="min-h-screen flex">
+
+    <!-- 템플릿 사이드바 (Sidebar) -->
+    <div id="sidebar" class="fixed inset-y-0 left-0 w-64 bg-darker p-4 z-20 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col custom-scrollbar">
+        <div class="flex items-center justify-between mb-6">
+            <h1 class="text-xl font-bold text-primary-400">
+                <i class="fas fa-robot mr-2"></i> Ollama Prompt Tester
+            </h1>
+            <button id="toggle-sidebar" class="lg:hidden text-gray-400 hover:text-white">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+
+        <!-- 모델 선택 -->
+        <div class="mb-6">
+            <label class="block text-xs font-semibold text-gray-400 mb-1 uppercase">② Ollama 모델 선택</label>
+            
+            <!-- 모델 목록 드롭다운 (API로 채워짐) -->
+            <select id="model-select" 
+                   class="w-full text-sm bg-dark p-2 rounded-lg text-gray-300 border border-primary-800 focus:ring-primary-500 focus:border-primary-500" 
+                   style="display:none;">
+            </select>
+            
+            <!-- 모델 수동 입력 (API 호출 실패 시 사용) -->
+            <input type="text" id="model-input" value="llama3.2:1b" 
+                   class="w-full text-sm bg-dark p-2 rounded-lg text-gray-300 border border-primary-800 focus:ring-primary-500 focus:border-primary-500" 
+                   placeholder="사용할 모델 이름 (예: llama3.2:1b)">
+
+            <div id="model-status" class="text-xs mt-2 text-gray-400">
+                <i class="fas fa-spinner fa-spin mr-2 text-primary-400"></i> 모델 목록 로딩 중...
+            </div>
+        </div>
+
+        <!-- 템플릿 목록 -->
+        <h2 class="text-sm font-semibold text-gray-300 mb-3 border-b border-primary-800 pb-2 uppercase">① 역할 템플릿 선택</h2>
+        <div id="template-buttons" class="space-y-1 mb-6 flex-1">
+            <!-- 템플릿 버튼들이 여기에 로드됩니다 -->
+        </div>
+        
+        <!-- 현재 시스템 프롬프트 표시 -->
+        <div class="pt-4 border-t border-primary-800">
+            <h3 class="text-xs font-bold text-primary-400 uppercase mb-2">선택된 역할 정보</h3>
+            <p class="text-sm font-semibold text-gray-200" id="selected-template-name">친절한 상담사</p>
+            <p class="text-xs text-gray-400 mb-2" id="selected-template-desc">친절하고 정중한 어조로 300자 이내 답변.</p>
+            <textarea id="system-prompt-display" readonly rows="5" 
+                      class="w-full text-xs text-gray-400 bg-dark p-2 rounded-lg border border-primary-900 resize-none custom-scrollbar-light focus:outline-none"></textarea>
+        </div>
+    </div> 
+
+    <!-- 메인 콘텐츠 영역 (Main Content) -->
+    <div class="flex-1 lg:ml-64 flex flex-col min-h-screen">
+        
+        <!-- Header for Mobile/Context -->
+        <header class="sticky top-0 lg:hidden flex items-center justify-between bg-darker p-4 shadow-xl z-10">
+            <button id="toggle-sidebar-mobile" class="text-primary-400 hover:text-white">
+                <i class="fas fa-bars text-xl"></i>
+            </button>
+            <h1 class="text-lg font-semibold text-primary-300">Ollama Prompt UI</h1>
+            <div class="w-10"></div> <!-- Placeholder for centering -->
+        </header>
+
+        <!-- Chat Window -->
+        <main id="chat-window" class="flex-1 p-4 sm:p-6 overflow-y-auto custom-scrollbar">
+            <!-- Messages will be injected here -->
+        </main>
+
+        <!-- Input Area -->
+        <div class="sticky bottom-0 w-full bg-dark p-4 border-t border-primary-800">
+            <div class="max-w-4xl mx-auto flex items-end bg-darker p-3 rounded-2xl shadow-2xl border border-primary-900">
+                
+                <!-- User Prompt Input -->
+                <textarea id="user-prompt" rows="1" 
+                          class="flex-1 bg-darker text-gray-200 resize-none overflow-y-hidden p-2 placeholder-gray-500 focus:outline-none focus:ring-0 rounded-lg mr-3 custom-scrollbar" 
+                          placeholder="여기에 사용자 프롬프트를 입력하세요... (Shift+Enter: 줄바꿈, Enter: 전송)"></textarea>
+                
+                <!-- Generate Button -->
+                <button id="generate-btn" 
+                        class="flex-shrink-0 bg-primary-600 hover:bg-primary-500 text-white p-3 rounded-full shadow-lg transition duration-150 ease-in-out disabled:bg-primary-900 disabled:text-gray-500">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+            <p class="text-center text-xs text-gray-500 mt-2">
+                사용 모델: <span id="model-name-display" class="font-semibold text-primary-300">llama3.2:1b</span>, 적용 역할: <span id="role-name-display" class="font-semibold text-primary-300">친절한 상담사</span>
+            </p>
+        </div>
+    </div> 
+
+</body>
+</html>

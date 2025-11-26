@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+
+프론트엔드 웹 UI 서비스 정의
+
+prompt-ui:
+build:
+context: .
+dockerfile: Dockerfile
+container_name: ollama_prompt_ui
+ports:
+- "8000:8000"
+# Ollama가 실행 중인 호스트 네트워크에 접근하기 위해 network_mode를 host로 설정할 수 있지만,
+# 보안상의 이유로 권장되지 않으므로, 기본 bridge 네트워크를 사용하고
+# 사용자가 직접 localhost:11434 포트를 열어주도록 안내합니다.
+# extra_hosts 설정을 사용하여 호스트의 IP를 'host.docker.internal'로 접근 가능하게 합니다.
+extra_hosts:
+- "host.docker.internal:host-gateway"
+restart: unless-stopped
+# 🚨 참고: 프론트엔드 JS 코드는 'http://localhost:11434'로 호출하며,
+# 이는 컨테이너 내부에서 호스트 머신의 Ollama 인스턴스로 라우팅되어야 합니다.
+
+Ollama는 보통 Docker 외부(GPU 접근 등)에서 실행되지만,
+
+만약 Ollama 자체도 Docker로 실행하려면 아래 주석을 해제하고 사용하십시오.
+
+ollama:
+
+image: ollama/ollama
+
+container_name: ollama_server
+
+ports:
+
+- "11434:11434"
+
+# GPU 지원을 위한 설정 (NVIDIA GPU가 있는 경우)
+
+# devices:
+
+#   - /dev/nvidia0:/dev/nvidia0
+
+#   - /dev/nvidiactl:/dev/nvidiactl
+
+#   - /dev/nvidia-uvm:/dev/nvidia-uvm
+
+# volumes:
+
+#   - ollama_data:/root/.ollama
+
+volumes:
+
+ollama_data:

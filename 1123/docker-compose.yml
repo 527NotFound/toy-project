@@ -1,0 +1,55 @@
+version: "3.8"
+
+services:
+# 웹서버 1
+  web1:
+    build: ./webserver1
+    image: webserver1:latest
+    container_name: web1
+    ports:
+      - "8001:80"
+    networks:
+      - webnet
+    restart: unless-stopped
+
+# 웹서버 2
+  web2:
+    build: ./webserver2
+    image: webserver2:latest
+    container_name: web2
+    ports:
+      - "8002:80"
+    networks:
+      - webnet
+    restart: unless-stopped
+
+# 웹서버 3
+  web3:
+    build: ./webserver3
+    image: webserver3:latest
+    container_name: web3
+    ports:
+      - "8003:80"
+    networks:
+      - webnet
+    restart: unless-stopped
+
+# 로드밸런서 (Nginx)
+  nginx:
+    image: nginx:alpine
+    container_name: loadbalancer
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - "80:80"
+    networks:
+      - webnet
+    restart: unless-stopped
+    depends_on:
+      - web1
+      - web2
+      - web3
+
+networks:
+  webnet:
+    driver: bridge

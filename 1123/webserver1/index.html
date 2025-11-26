@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Web Server 1</title>
+    <style>
+        body {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 100px;
+            font-family: Arial, sans-serif;
+        }
+        h1 {
+            border-bottom: 2px solid blue;
+            display: inline-block;
+            padding-bottom: 5px;
+            margin-bottom: 30px; /* 이미지와의 간격 확보 */
+        }
+        img {
+            display: block; /* 이미지를 블록 요소로 만들어 줄바꿈 */
+            margin: 0 auto 30px auto; /* 중앙 정렬 및 아래쪽 여백 추가 */
+            max-width: 250px; /* 이미지 최대 너비 증가 */
+            height: auto; /* 비율 유지 */
+            border-radius: 10px; /* 이미지를 둥글게 (선택 사항) */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* 그림자 추가 (선택 사항) */
+        }
+        p {
+            margin: 10px 0;
+        }
+        .active-status {
+            color: green;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>1st Web Server</h1>
+    <img src="shinobu.jpeg" alt="Server Icon">
+    <p>Port: 8001</p>
+    <p>Load Balancing Test</p>
+    <p>Current Time: <span id="current-time"></span></p>
+    <p class="active-status">• ACTIVE</p>
+
+    <script>
+        function updateTime() {
+            const now = new Date();
+            const options = {
+                year: 'numeric',
+                month: 'numeric',
+                day: 'numeric',
+                hour: 'numeric',
+                minute: 'numeric',
+                second: 'numeric',
+                hour12: false
+            };
+            document.getElementById('current-time').innerText = now.toLocaleString('en-US', options);
+        }
+
+        updateTime();
+        setInterval(updateTime, 1000);
+    </script>
+</body>
+</html>
