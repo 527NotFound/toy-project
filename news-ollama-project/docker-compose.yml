@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  # 1. Ollama 서비스 (GPU 활성화)
+  ollama:
+    image: ollama/ollama
+    container_name: ollama_gpu
+    
+    # GPU 사용
+    deploy:
+      resources:
+        reservations:
+          devices:
+            # 모든 NVIDIA GPU에 접근하도록 설정
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+              
+    # 데이터 영속성을 위한 볼륨 (모델 데이터 유지)
+    volumes:
+      - ollama_data:/root/.ollama
+      
+    # Ollama API 포트 노출 (선택 사항이지만 외부 모니터링을 위해 열어둠)
+    ports:
+      - "11435:11434"
+    
+    restart: always
+
+  # 2. Flask 웹 애플리케이션 서비스
+  webapp:
+    # 현재 디렉토리의 Dockerfile을 사용하여 이미지를 빌드합니다.
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: news_summarizer_web
+    
+    # 웹 접근을 위한 포트 노출
+    ports:
+      - "5000:5000"
+      
+    # 환경 변수 설정
+    environment:
+      # NewsAPI 키 설정
+      NEWS_API_KEY: "b04f614c7a654def93947716bc3e4bea"
+      # Ollama 서비스 이름으로 호스트 지정 (Docker 네트워크)
+      OLLAMA_HOST: http://ollama:11434
+      # Ollama 모델 지정
+      OLLAMA_MODEL: llama3
+      
+    # Ollama 서비스가 시작될 때까지 기다림
+    depends_on:
+      - ollama
+    restart: always
+
+# 볼륨 정의
+volumes:
+  ollama_data:
